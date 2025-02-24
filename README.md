@@ -1,0 +1,3 @@
+# NtSetInformationThread ThreadHideFromDebugger Fix
+
+This is a project that removes the anti-debugging made with `NtSetInformationThread(TheadID, ThreadHideFromDebugger, 0, 0);`. It hooks `NtSetInformationThread` and just returns 0 if the program tries to hide the thread. It can be injected with any of the injection methods, and it is also a proxy dll to dinput8 library, so it can be just placed next to the executable that uses dinput8.dll.
