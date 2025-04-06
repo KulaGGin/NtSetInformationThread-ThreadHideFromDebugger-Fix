@@ -2,13 +2,7 @@
 #include <iostream>
 #include <Windows.h>
 #include "MinHook.h"
-
-using NtSetInformationThreadFunction = NTSTATUS(HANDLE, ULONG, PULONG, ULONG);
-
-NtSetInformationThreadFunction* NtSetInformationThread;
-NtSetInformationThreadFunction* OriginalNtSetInformationThread;
-
-ULONG ThreadHideFromDebugger = 0x11;
+#include "NtSetInformationThreadFix.h"
 
 using DirectInput8CreateFunction = HRESULT(
 	HINSTANCE hinst,
@@ -16,17 +10,6 @@ using DirectInput8CreateFunction = HRESULT(
 	REFIID riidltf,
 	LPVOID* ppvOut,
 	LPUNKNOWN punkOuter);
-
-NTSTATUS NtSetInformationThread_Detour(HANDLE ThreadHandle,
-	ULONG ThreadInformationClass,
-	PULONG ThreadInformation,
-	ULONG ThreadInformationLength) {
-
-	if(ThreadInformationClass == ThreadHideFromDebugger)
-		return 0;
-	
-	return OriginalNtSetInformationThread(ThreadHandle, ThreadInformationClass, ThreadInformation, ThreadInformationLength);
-}
 
 DirectInput8CreateFunction* GetOriginalDirectInput8CreatePointer() {
 	std::string System32Path(0x1000, 0);
@@ -45,30 +28,12 @@ extern "C" __declspec(dllexport) HRESULT WINAPI DirectInput8Create(
 	return GetOriginalDirectInput8CreatePointer()(hinst, dwVersion, riidltf, ppvOut, punkOuter);
 }
 
-void HookNtSetInformationThread() {
-	MH_Initialize();
-
-	MH_CreateHook(NtSetInformationThread, NtSetInformationThread_Detour, reinterpret_cast<LPVOID*>(&OriginalNtSetInformationThread));
-	MH_EnableHook(NtSetInformationThread);
-}
-
-void LoadNtDLLAndFunctions() {
-	HMODULE NtDLL = LoadLibrary("ntdll.dll");
-	NtSetInformationThread = reinterpret_cast<NtSetInformationThreadFunction*>(GetProcAddress(NtDLL, "NtSetInformationThread"));
-}
-
-
-void Start() {
-	LoadNtDLLAndFunctions();
-	HookNtSetInformationThread();
-}
-
 BOOL APIENTRY DllMain(HMODULE ModuleHandle,
                       DWORD ReasonForCall,
                       LPVOID Reserved) {
 	if(ReasonForCall != DLL_PROCESS_ATTACH) return TRUE;
 
-	Start();
+	static NtSetInformationThreadFix NtSetInformationThreadFix{};
 
 	return TRUE;
 }
