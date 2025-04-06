@@ -71,13 +71,15 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <TargetName>dinput8</TargetName>
+    <TargetName>ThreadHideFromDebuggerFix</TargetName>
     <IncludePath>$(SolutionDir)minhook\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)minhook\lib;$(LibraryPath)</LibraryPath>
+    <OutDir>..\..\..\..\Games\Steam\steamapps\common\TEKKEN 8\Polaris\Binaries\Win64\ForgeMods</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(SolutionDir)minhook\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)minhook\lib;$(LibraryPath)</LibraryPath>
+    <OutDir>D:\Games\Steam\steamapps\common\TEKKEN 8\Polaris\Binaries\Win64</OutDir>
     <TargetName>dinput8</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
